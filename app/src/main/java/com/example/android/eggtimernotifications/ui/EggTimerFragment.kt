@@ -56,6 +56,15 @@ class EggTimerFragment : Fragment() {
             getString(R.string.egg_notification_channel_name)
         )
 
+        // TODO: Step 3.1 create a new channel for FCM
+        createChannel(
+            getString(R.string.breakfast_notification_channel_id),
+            getString(R.string.breakfast_notification_channel_name)
+        )
+
+        // TODO: Step 3.4 call subscribe topics on start
+        subscribeTopic()
+
         return binding.root
     }
 
@@ -65,25 +74,37 @@ class EggTimerFragment : Fragment() {
             val notificationChannel = NotificationChannel(
                 channelId,
                 channelName,
-                // TODO: Step 2.4 change importance
                 NotificationManager.IMPORTANCE_HIGH
-            )// TODO: Step 2.6 disable badges for this channel
-                .apply {
-                    setShowBadge(false)
-                }
-
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
-            notificationChannel.description = getString(R.string.breakfast_notification_channel_description)
+            ).apply {
+                setShowBadge(false)
+                enableLights(true)
+                lightColor = Color.RED
+                enableVibration(true)
+                description = "Time for breakfast"
+            }
 
             val notificationManager = requireActivity().getSystemService(
                 NotificationManager::class.java
             )
             notificationManager.createNotificationChannel(notificationChannel)
-
         }
+
         // TODO: Step 1.6 END create a channel
+
+    }
+
+    // TODO: Step 3.3 subscribe to breakfast topic
+    private fun subscribeTopic() {
+        // [START subscribe_topic]
+        FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+            .addOnCompleteListener { task ->
+                var message = getString(R.string.message_subscribed)
+                if (!task.isSuccessful) {
+                    message = getString(R.string.message_subscribe_failed)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        // [END subscribe_topics]
     }
 
     companion object {

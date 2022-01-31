@@ -22,6 +22,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.SystemClock
 import android.text.format.DateUtils
 import androidx.core.app.AlarmManagerCompat
@@ -38,7 +39,11 @@ class SnoozeReceiver: BroadcastReceiver() {
             context,
             REQUEST_CODE,
             notifyIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
         )
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         AlarmManagerCompat.setExactAndAllowWhileIdle(
@@ -49,8 +54,8 @@ class SnoozeReceiver: BroadcastReceiver() {
         )
 
         val notificationManager = ContextCompat.getSystemService(
-                context,
-                NotificationManager::class.java
+            context,
+            NotificationManager::class.java
         ) as NotificationManager
         notificationManager.cancelAll()
     }
